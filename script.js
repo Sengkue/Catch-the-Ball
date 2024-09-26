@@ -4,11 +4,13 @@ const ball = document.getElementById('ball');
 const gameOverText = document.getElementById('gameOver');
 const restartBtn = document.getElementById('restartBtn');
 
+let ballSpeedX = 2;
 let ballSpeedY = 2;
 let ballX = gameArea.clientWidth / 2;
 let ballY = 0;
 let paddleX = gameArea.clientWidth / 2;
 let gameOver = false;
+let speedIncrementInterval = 5000; // Increase ball speed every 5 seconds
 
 // Move the paddle with arrow keys
 document.addEventListener('keydown', (event) => {
@@ -31,12 +33,18 @@ document.addEventListener('keydown', (event) => {
 function moveBall() {
     if (gameOver) return;
     
+    ballX += ballSpeedX;
     ballY += ballSpeedY;
     
     // Ball hits the paddle
     if (ballY >= gameArea.clientHeight - paddle.clientHeight - ball.clientHeight &&
         ballX >= paddleX && ballX <= paddleX + paddle.clientWidth) {
         ballSpeedY = -ballSpeedY; // Bounce off the paddle
+    }
+    
+    // Ball hits the left or right wall
+    if (ballX <= 0 || ballX >= gameArea.clientWidth - ball.clientWidth) {
+        ballSpeedX = -ballSpeedX; // Bounce off the side walls
     }
     
     // Ball hits the top
@@ -77,6 +85,7 @@ function restartGame() {
     ballX = gameArea.clientWidth / 2;
     ballY = 0;
     paddleX = gameArea.clientWidth / 2;
+    ballSpeedX = 2;
     ballSpeedY = 2;
     gameOver = false;
 
@@ -93,5 +102,14 @@ function restartGame() {
     gameLoop();
 }
 
-// Start the game loop
+// Function to gradually increase the ball speed
+function increaseSpeed() {
+    if (!gameOver) {
+        ballSpeedX *= 1.1;
+        ballSpeedY *= 1.1;
+    }
+}
+
+// Start the game loop and gradually increase the ball speed every 5 seconds
 gameLoop();
+setInterval(increaseSpeed, speedIncrementInterval);
