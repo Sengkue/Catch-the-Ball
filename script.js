@@ -22,11 +22,15 @@ document.addEventListener('keydown', (event) => {
     } else if (event.key === 'ArrowRight') {
         paddleX += paddleSpeed;
     }
-    // Keep paddle within game area
-    if (paddleX < 0) paddleX = 0;
-    if (paddleX > gameArea.clientWidth - paddle.clientWidth) {
-        paddleX = gameArea.clientWidth - paddle.clientWidth;
+
+    // Keep paddle within game area (left and right boundaries)
+    if (paddleX < 0) {
+        paddleX = 0;  // Prevent going past the left edge
     }
+    if (paddleX > gameArea.clientWidth - paddle.clientWidth) {
+        paddleX = gameArea.clientWidth - paddle.clientWidth;  // Prevent going past the right edge
+    }
+
     paddle.style.left = paddleX + 'px';
 });
 
@@ -40,11 +44,14 @@ gameArea.addEventListener('touchmove', (event) => {
     // Set the paddle's X position to the touch position
     paddleX = touchX - (paddle.clientWidth / 2);
 
-    // Keep paddle within game area
-    if (paddleX < 0) paddleX = 0;
-    if (paddleX > gameArea.clientWidth - paddle.clientWidth) {
-        paddleX = gameArea.clientWidth - paddle.clientWidth;
+    // Keep paddle within game area (left and right boundaries)
+    if (paddleX < 0) {
+        paddleX = 0;  // Prevent going past the left edge
     }
+    if (paddleX > gameArea.clientWidth - paddle.clientWidth) {
+        paddleX = gameArea.clientWidth - paddle.clientWidth;  // Prevent going past the right edge
+    }
+
     paddle.style.left = paddleX + 'px';
 });
 
