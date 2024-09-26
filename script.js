@@ -1,116 +1,131 @@
-let paddle, ball, gameArea;
-let paddleX;
-let ballX, ballY;
+const gameArea = document.getElementById('gameArea');
+const paddle = document.getElementById('paddle');
+const ball = document.getElementById('ball');
+const gameOverText = document.getElementById('gameOver');
+const restartBtn = document.getElementById('restartBtn');
+
 let ballSpeedX = 2;
 let ballSpeedY = 2;
+let ballX = gameArea.clientWidth / 2;
+let ballY = 0;
+let paddleX = gameArea.clientWidth / 2;
 let gameOver = false;
-let interval;
+let speedIncrementInterval = 5000; // Increase ball speed every 5 seconds
 
-document.addEventListener('DOMContentLoaded', () => {
-    paddle = document.getElementById('paddle');
-    ball = document.getElementById('ball');
-    gameArea = document.getElementById('gameArea');
-    paddleX = gameArea.clientWidth / 2 - paddle.clientWidth / 2;
-    ballX = gameArea.clientWidth / 2 - ball.clientWidth / 2;
-    ballY = 50; // Initial ball Y position
-    startGame();
+// Move the paddle with arrow keys (for desktop)
+document.addEventListener('keydown', (event) => {
+    if (gameOver) return;
+    
+    const paddleSpeed = 20;
+    if (event.key === 'ArrowLeft') {
+        paddleX -= paddleSpeed;
+    } else if (event.key === 'ArrowRight') {
+        paddleX += paddleSpeed;
+    }
+    // Keep paddle within game area
+    if (paddleX < 0) paddleX = 0;
+    if (paddleX > gameArea.clientWidth - paddle.clientWidth) {
+        paddleX = gameArea.clientWidth - paddle.clientWidth;
+    }
+    paddle.style.left = paddleX + 'px';
 });
 
-// Start the game
-function startGame() {
-    gameOver = false;
-    ballSpeedX = 2; // Reset ball speed
-    ballSpeedY = 2; // Reset ball speed
-    document.getElementById('gameOver').style.display = 'none';
-    document.getElementById('restartBtn').style.display = 'none';
+// Move the paddle with touch (for mobile)
+gameArea.addEventListener('touchmove', (event) => {
+    if (gameOver) return;
+    
+    // Get the touch position relative to the game area
+    const touchX = event.touches[0].clientX - gameArea.offsetLeft;
 
-    interval = setInterval(() => {
-        moveBall();
-    }, 20);
+    // Set the paddle's X position to the touch position
+    paddleX = touchX - (paddle.clientWidth / 2);
 
-    document.addEventListener('keydown', (event) => {
-        if (gameOver) return;
-        
-        const paddleSpeed = 20;
-        if (event.key === 'ArrowLeft') {
-            paddleX -= paddleSpeed;
-        } else if (event.key === 'ArrowRight') {
-            paddleX += paddleSpeed;
-        }
+    // Keep paddle within game area
+    if (paddleX < 0) paddleX = 0;
+    if (paddleX > gameArea.clientWidth - paddle.clientWidth) {
+        paddleX = gameArea.clientWidth - paddle.clientWidth;
+    }
+    paddle.style.left = paddleX + 'px';
+});
 
-        // Keep paddle within game area
-        if (paddleX < 0) paddleX = 0;
-        if (paddleX > gameArea.clientWidth - paddle.clientWidth) {
-            paddleX = gameArea.clientWidth - paddle.clientWidth;
-        }
-        paddle.style.left = paddleX + 'px';
-    });
-
-    gameArea.addEventListener('touchmove', (event) => {
-        if (gameOver) return;
-
-        // Get the touch position relative to the game area
-        const touchX = event.touches[0].clientX - gameArea.offsetLeft;
-
-        // Set the paddle's X position to the touch position
-        paddleX = touchX - (paddle.clientWidth / 2);
-
-        // Keep paddle within game area
-        if (paddleX < 0) paddleX = 0;
-        if (paddleX > gameArea.clientWidth - paddle.clientWidth) {
-            paddleX = gameArea.clientWidth - paddle.clientWidth;
-        }
-        paddle.style.left = paddleX + 'px';
-    });
-}
-
-// Move the ball
 function moveBall() {
+    if (gameOver) return;
+    
     ballX += ballSpeedX;
     ballY += ballSpeedY;
-
-    // Check for collision with walls
-    if (ballX + ball.clientWidth > gameArea.clientWidth || ballX < 0) {
-        ballSpeedX = -ballSpeedX; // Reverse direction on X axis
+    
+    // Improved collision detection: Check if ball hits the paddle
+    if (ballY + ball.clientHeight >= gameArea.clientHeight - paddle.clientHeight) {
+        if (ballX + ball.clientWidth >= paddleX && ballX <= paddleX + paddle.clientWidth) {
+            ballSpeedY = -ballSpeedY; // Ball bounces off the paddle
+        } else if (ballY >= gameArea.clientHeight - ball.clientHeight) {
+            gameOver = true;  // Game over if the ball misses the paddle
+            gameOverText.style.display = 'block'; // Show Game Over text
+            restartBtn.style.display = 'block';  // Show Restart button
+        }
     }
 
-    // Check for collision with the paddle
-    if (
-        ballY + ball.clientHeight >= gameArea.clientHeight - paddle.clientHeight &&
-        ballX + ball.clientWidth > paddleX &&
-        ballX < paddleX + paddle.clientWidth
-    ) {
-        ballSpeedY = -ballSpeedY; // Reverse direction on Y axis
+    // Ball hits the left or right wall
+    if (ballX <= 0 || ballX >= gameArea.clientWidth - ball.clientWidth) {
+        ballSpeedX = -ballSpeedX; // Bounce off the side walls
     }
-
-    // Check if the ball falls below the game area
-    if (ballY + ball.clientHeight > gameArea.clientHeight) {
-        endGame();
+    
+    // Ball hits the top
+    if (ballY <= 0) {
+        ballSpeedY = -ballSpeedY; // Bounce off top wall
     }
-
-    ball.style.left = ballX + 'px';
+    
     ball.style.top = ballY + 'px';
-
-    // Increase ball speed over time
-    ballSpeedX += (ballSpeedX > 0 ? 0.001 : -0.001); // Gradually increase speed on X axis
-    ballSpeedY += (ballSpeedY > 0 ? 0.001 : -0.001); // Gradually increase speed on Y axis
+    ball.style.left = ballX + 'px';
 }
 
-// End the game
-function endGame() {
-    clearInterval(interval);
-    gameOver = true;
-    document.getElementById('gameOver').style.display = 'block';
-    document.getElementById('restartBtn').style.display = 'block';
+function gameLoop() {
+    moveBall();
+    if (!gameOver) {
+        requestAnimationFrame(gameLoop);
+    }
 }
 
-// Restart the game
+// Restart the game when the user clicks the Restart button
+restartBtn.addEventListener('click', restartGame);
+
+// Optional: Allow restarting the game with the spacebar
+document.addEventListener('keydown', (event) => {
+    if (gameOver && event.key === ' ') {
+        restartGame();
+    }
+});
+
 function restartGame() {
-    ballX = gameArea.clientWidth / 2 - ball.clientWidth / 2;
-    ballY = 50; // Reset ball Y position
-    paddleX = gameArea.clientWidth / 2 - paddle.clientWidth / 2;
-    paddle.style.left = paddleX + 'px';
-    ball.style.left = ballX + 'px';
+    // Reset game variables
+    ballX = gameArea.clientWidth / 2;
+    ballY = 0;
+    paddleX = gameArea.clientWidth / 2;
+    ballSpeedX = 2;
+    ballSpeedY = 2;
+    gameOver = false;
+
+    // Hide the Game Over text and Restart button
+    gameOverText.style.display = 'none';
+    restartBtn.style.display = 'none';
+
+    // Reset positions
     ball.style.top = ballY + 'px';
-    startGame();
+    ball.style.left = ballX + 'px';
+    paddle.style.left = paddleX + 'px';
+
+    // Start the game loop again
+    gameLoop();
 }
+
+// Function to gradually increase the ball speed
+function increaseSpeed() {
+    if (!gameOver) {
+        ballSpeedX *= 1.1;
+        ballSpeedY *= 1.1;
+    }
+}
+
+// Start the game loop and gradually increase the ball speed every 5 seconds
+gameLoop();
+setInterval(increaseSpeed, speedIncrementInterval);
