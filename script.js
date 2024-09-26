@@ -12,8 +12,16 @@ let paddleX = gameArea.clientWidth / 2;
 let gameOver = false;
 let speedIncrementInterval = 5000; // Increase ball speed every 5 seconds
 
-// Load sound
+// Load sounds
 const paddleHitSound = new Audio('ball.mp3');
+const gameOverSound = new Audio('game-over.mp3');
+const gameStartSound = new Audio('game-start.mp3');
+
+// Function to start the game
+function startGame() {
+    gameStartSound.play(); // Play the start sound
+    gameLoop();
+}
 
 // Move the paddle with arrow keys (for desktop)
 document.addEventListener('keydown', (event) => {
@@ -64,6 +72,7 @@ function moveBall() {
             paddleHitSound.play(); // Play the hit sound
         } else if (ballY >= gameArea.clientHeight - ball.clientHeight) {
             gameOver = true;  // Game over if the ball misses the paddle
+            gameOverSound.play(); // Play the game over sound
             gameOverText.style.display = 'block'; // Show Game Over text
             restartBtn.style.display = 'block';  // Show Restart button
         }
@@ -131,5 +140,5 @@ function increaseSpeed() {
 }
 
 // Start the game loop and gradually increase the ball speed every 5 seconds
-gameLoop();
+startGame(); // Start the game and play the start sound
 setInterval(increaseSpeed, speedIncrementInterval);
