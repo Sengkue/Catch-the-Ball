@@ -1,0 +1,47 @@
+body {
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f0f0f0;
+}
+
+#gameArea {
+    position: relative;
+    width: 300px;
+    height: 500px;
+    background-color: lightblue;
+    border: 2px solid #333;
+}
+
+#paddle {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 60px;
+    height: 15px;
+    background-color: #333;
+    transform: translateX(-50%);
+}
+
+#ball {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    background-color: red;
+    border-radius: 50%;
+    transform: translateX(-50%);
+}
+
+#gameOver {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 30px;
+    color: red;
+    font-weight: bold;
+}
