@@ -1,42 +1,41 @@
 body {
+    margin: 0;
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
-    margin: 0;
     background-color: #f0f0f0;
 }
 
 #gameArea {
     position: relative;
-    width: 800px;  /* Width of the game area */
-    height: 600px; /* Height of the game area */
-    border: 2px solid #000;
-    overflow: hidden;
-    background-color: #fff;
+    width: 300px;
+    height: 500px;
+    background-color: lightblue;
+    border: 2px solid #333;
 }
 
 #paddle {
     position: absolute;
-    bottom: 20px;
+    bottom: 0;
     left: 50%;
-    width: 100px;
-    height: 20px;
-    background-color: #4CAF50;
+    width: 60px;
+    height: 15px;
+    background-color: #333;
     transform: translateX(-50%);
 }
 
 #ball {
     position: absolute;
+    top: 0;
+    left: 50%;
     width: 20px;
     height: 20px;
-    background-color: #FF5733;
+    background-color: red;
     border-radius: 50%;
-    top: 50px;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    transform: translateX(-50%);
 }
-
+/* General styles for larger screens (default) */
 #gameOver {
     display: none;
     font-size: 24px;
@@ -65,11 +64,11 @@ body {
 /* Media query for mobile devices (max-width: 600px) */
 @media (max-width: 600px) {
     #gameOver {
-        font-size: 16px; /* Smaller font size for mobile */
+        font-size: 16px; /* Make the Game Over text smaller */
     }
 
     #restartBtn {
-        font-size: 14px; /* Smaller font size for mobile */
-        padding: 8px 16px; /* Reduced padding for mobile */
+        font-size: 14px; /* Smaller font size for the Restart button */
+        padding: 8px 16px; /* Reduce button padding */
     }
 }
