@@ -46,13 +46,8 @@ document.addEventListener('keydown', (event) => {
 gameArea.addEventListener('touchmove', (event) => {
     if (gameOver) return;
 
-    // Get the touch position relative to the game area
     const touchX = event.touches[0].clientX - gameArea.offsetLeft;
-
-    // Set the paddle's X position to the touch position
     paddleX = touchX - (paddle.clientWidth / 2);
-
-    // Keep paddle within game area
     if (paddleX < 0) paddleX = 0;
     if (paddleX > gameArea.clientWidth - paddle.clientWidth) {
         paddleX = gameArea.clientWidth - paddle.clientWidth;
@@ -83,12 +78,14 @@ function moveBall() {
     if (ballX <= 0 || ballX >= gameArea.clientWidth - ball.clientWidth) {
         ballSpeedX = -ballSpeedX; // Bounce off the side walls
         hitCornerSound.play(); // Play hit corner sound on side wall hit
+        console.log("Hit side wall"); // Debugging statement
     }
     
     // Ball hits the top
     if (ballY <= 0) {
         ballSpeedY = -ballSpeedY; // Bounce off top wall
         hitCornerSound.play(); // Play hit corner sound on top wall hit
+        console.log("Hit top wall"); // Debugging statement
     }
 
     // Check if the ball hits the corners specifically
@@ -99,6 +96,7 @@ function moveBall() {
         (ballX >= gameArea.clientWidth - ball.clientWidth && ballY >= gameArea.clientHeight - ball.clientHeight) // Bottom right corner
     ) {
         hitCornerSound.play(); // Play hit corner sound
+        console.log("Hit corner"); // Debugging statement
     }
 
     ball.style.top = ballY + 'px';
