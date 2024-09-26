@@ -127,6 +127,10 @@ function restartGame() {
     ball.style.left = ballX + 'px';
     paddle.style.left = paddleX + 'px';
 
+    // Play the start sound when the game restarts
+    gameStartSound.currentTime = 0; // Reset playback position to the start
+    gameStartSound.play(); // Play the start sound
+
     // Start the game loop again
     gameLoop();
 }
