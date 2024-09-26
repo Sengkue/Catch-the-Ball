@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catch the Ball Game</title>
+    <style>
+        body {
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+        #gameArea {
+            position: relative;
+            width: 300px;
+            height: 500px;
+            background-color: lightblue;
+            border: 2px solid #333;
+        }
+        #paddle {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 60px;
+            height: 15px;
+            background-color: #333;
+            transform: translateX(-50%);
+        }
+        #ball {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            background-color: red;
+            border-radius: 50%;
+            transform: translateX(-50%);
+        }
+    </style>
+</head>
+<body>
+    <div id="gameArea">
+        <div id="ball"></div>
+        <div id="paddle"></div>
+    </div>
+
+    <script>
+        const gameArea = document.getElementById('gameArea');
+        const paddle = document.getElementById('paddle');
+        const ball = document.getElementById('ball');
+
+        let ballSpeedY = 2;
+        let ballX = gameArea.clientWidth / 2;
+        let ballY = 0;
+        let paddleX = gameArea.clientWidth / 2;
+
+        // Move the paddle with arrow keys
+        document.addEventListener('keydown', (event) => {
+            const paddleSpeed = 20;
+            if (event.key === 'ArrowLeft') {
+                paddleX -= paddleSpeed;
+            } else if (event.key === 'ArrowRight') {
+                paddleX += paddleSpeed;
+            }
+            // Keep paddle within game area
+            if (paddleX < 0) paddleX = 0;
+            if (paddleX > gameArea.clientWidth - paddle.clientWidth) {
+                paddleX = gameArea.clientWidth - paddle.clientWidth;
+            }
+            paddle.style.left = paddleX + 'px';
+        });
+
+        function moveBall() {
+            ballY += ballSpeedY;
+            if (ballY >= gameArea.clientHeight - paddle.clientHeight - ball.clientHeight &&
+                ballX >= paddleX && ballX <= paddleX + paddle.clientWidth) {
+                ballSpeedY = -ballSpeedY; // Bounce off the paddle
+            }
+            if (ballY <= 0 || ballY >= gameArea.clientHeight - ball.clientHeight) {
+                ballSpeedY = -ballSpeedY; // Bounce off top and bottom walls
+            }
+            ball.style.top = ballY + 'px';
+            ball.style.left = ballX + 'px';
+        }
+
+        function gameLoop() {
+            moveBall();
+            requestAnimationFrame(gameLoop);
+        }
+
+        gameLoop();
+    </script>
+</body>
+</html>
