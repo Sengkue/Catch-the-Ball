@@ -7,34 +7,35 @@ body {
     background-color: #f0f0f0;
 }
 
+/* The game area should be relatively positioned */
 #gameArea {
     position: relative;
-    width: 300px;
+    width: 100%;
     height: 500px;
-    background-color: lightblue;
-    border: 2px solid #333;
+    background-color: lightgray;
+    overflow: hidden; /* Ensures nothing can move outside the game area */
 }
 
+/* The paddle should be absolutely positioned and kept within the gameArea */
 #paddle {
     position: absolute;
-    bottom: 0;
+    bottom: 10px; /* Paddle near the bottom */
     left: 50%;
-    width: 60px;
-    height: 15px;
-    background-color: #333;
     transform: translateX(-50%);
+    width: 100px; /* Adjust paddle width to fit the game area */
+    height: 10px;
+    background-color: blue;
 }
 
+/* Ball CSS */
 #ball {
     position: absolute;
-    top: 0;
-    left: 50%;
     width: 20px;
     height: 20px;
     background-color: red;
     border-radius: 50%;
-    transform: translateX(-50%);
 }
+
 /* General styles for larger screens (default) */
 #gameOver {
     display: none;
