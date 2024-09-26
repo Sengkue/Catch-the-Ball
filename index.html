@@ -3,91 +3,183 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Catch the Ball Game</title>
+    <title>Advanced Space Invaders</title>
     <style>
         body {
             margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #f0f0f0;
+            background: black;
+            color: white;
+            font-family: Arial, sans-serif;
         }
-        #gameArea {
-            position: relative;
-            width: 300px;
-            height: 500px;
-            background-color: lightblue;
-            border: 2px solid #333;
+        canvas {
+            display: block;
+            margin: 0 auto;
+            background-color: #111;
+            border: 2px solid #555;
         }
-        #paddle {
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            width: 60px;
-            height: 15px;
-            background-color: #333;
-            transform: translateX(-50%);
-        }
-        #ball {
-            position: absolute;
-            top: 0;
-            left: 50%;
-            width: 20px;
-            height: 20px;
-            background-color: red;
-            border-radius: 50%;
-            transform: translateX(-50%);
+        #game-info {
+            text-align: center;
+            padding: 10px;
         }
     </style>
 </head>
 <body>
-    <div id="gameArea">
-        <div id="ball"></div>
-        <div id="paddle"></div>
+    <div id="game-info">
+        <h1>Space Invaders</h1>
+        <p>Use arrow keys to move, spacebar to shoot</p>
     </div>
+    <canvas id="gameCanvas" width="600" height="400"></canvas>
 
     <script>
-        const gameArea = document.getElementById('gameArea');
-        const paddle = document.getElementById('paddle');
-        const ball = document.getElementById('ball');
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
 
-        let ballSpeedY = 2;
-        let ballX = gameArea.clientWidth / 2;
-        let ballY = 0;
-        let paddleX = gameArea.clientWidth / 2;
+        let spaceship = {
+            x: canvas.width / 2 - 20,
+            y: canvas.height - 40,
+            width: 40,
+            height: 20,
+            speed: 5,
+            bullets: []
+        };
 
-        // Move the paddle with arrow keys
-        document.addEventListener('keydown', (event) => {
-            const paddleSpeed = 20;
-            if (event.key === 'ArrowLeft') {
-                paddleX -= paddleSpeed;
-            } else if (event.key === 'ArrowRight') {
-                paddleX += paddleSpeed;
-            }
-            // Keep paddle within game area
-            if (paddleX < 0) paddleX = 0;
-            if (paddleX > gameArea.clientWidth - paddle.clientWidth) {
-                paddleX = gameArea.clientWidth - paddle.clientWidth;
-            }
-            paddle.style.left = paddleX + 'px';
-        });
+        let enemies = [];
+        let enemySpeed = 1;
+        let score = 0;
+        let gameOver = false;
 
-        function moveBall() {
-            ballY += ballSpeedY;
-            if (ballY >= gameArea.clientHeight - paddle.clientHeight - ball.clientHeight &&
-                ballX >= paddleX && ballX <= paddleX + paddle.clientWidth) {
-                ballSpeedY = -ballSpeedY; // Bounce off the paddle
+        // Create enemy grid
+        function createEnemies() {
+            for (let row = 0; row < 3; row++) {
+                for (let col = 0; col < 8; col++) {
+                    enemies.push({
+                        x: 50 + col * 60,
+                        y: 30 + row * 40,
+                        width: 40,
+                        height: 20,
+                        alive: true
+                    });
+                }
             }
-            if (ballY <= 0 || ballY >= gameArea.clientHeight - ball.clientHeight) {
-                ballSpeedY = -ballSpeedY; // Bounce off top and bottom walls
-            }
-            ball.style.top = ballY + 'px';
-            ball.style.left = ballX + 'px';
         }
 
+        createEnemies();
+
+        // Game controls
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'ArrowLeft') {
+                spaceship.x -= spaceship.speed;
+            } else if (event.key === 'ArrowRight') {
+                spaceship.x += spaceship.speed;
+            } else if (event.key === ' ') {
+                // Shoot bullets
+                spaceship.bullets.push({
+                    x: spaceship.x + spaceship.width / 2 - 2.5,
+                    y: spaceship.y,
+                    width: 5,
+                    height: 10,
+                    speed: 7
+                });
+            }
+        });
+
+        // Draw spaceship
+        function drawSpaceship() {
+            ctx.fillStyle = 'white';
+            ctx.fillRect(spaceship.x, spaceship.y, spaceship.width, spaceship.height);
+        }
+
+        // Draw enemies
+        function drawEnemies() {
+            enemies.forEach((enemy) => {
+                if (enemy.alive) {
+                    ctx.fillStyle = 'red';
+                    ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
+                }
+            });
+        }
+
+        // Move enemies
+        function moveEnemies() {
+            let direction = 1;
+            enemies.forEach((enemy) => {
+                if (enemy.alive) {
+                    enemy.x += enemySpeed * direction;
+                    if (enemy.x + enemy.width > canvas.width || enemy.x < 0) {
+                        direction *= -1;
+                        enemies.forEach((e) => e.y += 20); // Move down
+                    }
+                }
+            });
+        }
+
+        // Draw bullets
+        function drawBullets() {
+            ctx.fillStyle = 'yellow';
+            spaceship.bullets.forEach((bullet, index) => {
+                ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
+                bullet.y -= bullet.speed;
+
+                // Remove bullet if it goes out of bounds
+                if (bullet.y < 0) {
+                    spaceship.bullets.splice(index, 1);
+                }
+            });
+        }
+
+        // Bullet collision detection
+        function bulletCollision() {
+            spaceship.bullets.forEach((bullet, bIndex) => {
+                enemies.forEach((enemy, eIndex) => {
+                    if (
+                        bullet.x < enemy.x + enemy.width &&
+                        bullet.x + bullet.width > enemy.x &&
+                        bullet.y < enemy.y + enemy.height &&
+                        bullet.height + bullet.y > enemy.y &&
+                        enemy.alive
+                    ) {
+                        enemy.alive = false;
+                        score += 10;
+                        spaceship.bullets.splice(bIndex, 1); // Remove bullet
+                    }
+                });
+            });
+        }
+
+        // Check for game over
+        function checkGameOver() {
+            enemies.forEach((enemy) => {
+                if (enemy.alive && enemy.y + enemy.height > spaceship.y) {
+                    gameOver = true;
+                }
+            });
+        }
+
+        // Game loop
         function gameLoop() {
-            moveBall();
+            if (gameOver) {
+                ctx.fillStyle = 'red';
+                ctx.font = '30px Arial';
+                ctx.fillText('Game Over', canvas.width / 2 - 70, canvas.height / 2);
+                return;
+            }
+
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw and update game objects
+            drawSpaceship();
+            drawEnemies();
+            drawBullets();
+            bulletCollision();
+            moveEnemies();
+            checkGameOver();
+
+            // Display score
+            ctx.fillStyle = 'white';
+            ctx.font = '20px Arial';
+            ctx.fillText('Score: ' + score, 10, 20);
+
             requestAnimationFrame(gameLoop);
         }
 
