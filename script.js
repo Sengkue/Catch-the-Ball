@@ -16,6 +16,7 @@ let speedIncrementInterval = 5000; // Increase ball speed every 5 seconds
 const paddleHitSound = new Audio('ball.mp3');
 const gameOverSound = new Audio('game-over.mp3');
 const gameStartSound = new Audio('game-start.mp3');
+const hitCornerSound = new Audio('hit-corner.mp3'); // Load hit corner sound
 
 // Function to start the game
 function startGame() {
@@ -81,11 +82,23 @@ function moveBall() {
     // Ball hits the left or right wall
     if (ballX <= 0 || ballX >= gameArea.clientWidth - ball.clientWidth) {
         ballSpeedX = -ballSpeedX; // Bounce off the side walls
+        hitCornerSound.play(); // Play hit corner sound on side wall hit
     }
-
+    
     // Ball hits the top
     if (ballY <= 0) {
         ballSpeedY = -ballSpeedY; // Bounce off top wall
+        hitCornerSound.play(); // Play hit corner sound on top wall hit
+    }
+
+    // Check if the ball hits the corners specifically
+    if (
+        (ballX <= 0 && ballY <= 0) || // Top left corner
+        (ballX <= 0 && ballY >= gameArea.clientHeight - ball.clientHeight) || // Bottom left corner
+        (ballX >= gameArea.clientWidth - ball.clientWidth && ballY <= 0) || // Top right corner
+        (ballX >= gameArea.clientWidth - ball.clientWidth && ballY >= gameArea.clientHeight - ball.clientHeight) // Bottom right corner
+    ) {
+        hitCornerSound.play(); // Play hit corner sound
     }
 
     ball.style.top = ballY + 'px';
