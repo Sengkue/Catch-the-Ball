@@ -12,7 +12,7 @@ let paddleX = gameArea.clientWidth / 2;
 let gameOver = false;
 let speedIncrementInterval = 5000; // Increase ball speed every 5 seconds
 
-// Move the paddle with arrow keys
+// Move the paddle with arrow keys (for desktop)
 document.addEventListener('keydown', (event) => {
     if (gameOver) return;
     
@@ -22,6 +22,24 @@ document.addEventListener('keydown', (event) => {
     } else if (event.key === 'ArrowRight') {
         paddleX += paddleSpeed;
     }
+    // Keep paddle within game area
+    if (paddleX < 0) paddleX = 0;
+    if (paddleX > gameArea.clientWidth - paddle.clientWidth) {
+        paddleX = gameArea.clientWidth - paddle.clientWidth;
+    }
+    paddle.style.left = paddleX + 'px';
+});
+
+// Move the paddle with touch (for mobile)
+gameArea.addEventListener('touchmove', (event) => {
+    if (gameOver) return;
+    
+    // Get the touch position relative to the game area
+    const touchX = event.touches[0].clientX - gameArea.offsetLeft;
+
+    // Set the paddle's X position to the touch position
+    paddleX = touchX - (paddle.clientWidth / 2);
+
     // Keep paddle within game area
     if (paddleX < 0) paddleX = 0;
     if (paddleX > gameArea.clientWidth - paddle.clientWidth) {
