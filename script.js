@@ -36,12 +36,17 @@ function moveBall() {
     ballX += ballSpeedX;
     ballY += ballSpeedY;
     
-    // Ball hits the paddle
-    if (ballY >= gameArea.clientHeight - paddle.clientHeight - ball.clientHeight &&
-        ballX >= paddleX && ballX <= paddleX + paddle.clientWidth) {
-        ballSpeedY = -ballSpeedY; // Bounce off the paddle
+    // Improved collision detection: Check if ball hits the paddle
+    if (ballY + ball.clientHeight >= gameArea.clientHeight - paddle.clientHeight) {
+        if (ballX + ball.clientWidth >= paddleX && ballX <= paddleX + paddle.clientWidth) {
+            ballSpeedY = -ballSpeedY; // Ball bounces off the paddle
+        } else if (ballY >= gameArea.clientHeight - ball.clientHeight) {
+            gameOver = true;  // Game over if the ball misses the paddle
+            gameOverText.style.display = 'block'; // Show Game Over text
+            restartBtn.style.display = 'block';  // Show Restart button
+        }
     }
-    
+
     // Ball hits the left or right wall
     if (ballX <= 0 || ballX >= gameArea.clientWidth - ball.clientWidth) {
         ballSpeedX = -ballSpeedX; // Bounce off the side walls
@@ -50,13 +55,6 @@ function moveBall() {
     // Ball hits the top
     if (ballY <= 0) {
         ballSpeedY = -ballSpeedY; // Bounce off top wall
-    }
-    
-    // Game over if ball touches the bottom
-    if (ballY >= gameArea.clientHeight - ball.clientHeight) {
-        gameOver = true;
-        gameOverText.style.display = 'block'; // Show Game Over text
-        restartBtn.style.display = 'block';  // Show Restart button
     }
     
     ball.style.top = ballY + 'px';
